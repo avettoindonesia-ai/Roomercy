@@ -12,7 +12,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 // --- Keamanan Middleware ---
@@ -91,6 +91,16 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
     }
   }
 }
+
+// --- Endpoint Download APK Android ---
+app.get('/download-apk', (req, res) => {
+  const apkPath = path.join(__dirname, 'public', 'asisten-ai.apk');
+  res.download(apkPath, 'asisten-ai.apk', (err) => {
+    if (err) {
+      res.status(404).send('File APK belum siap atau sedang dikompilasi.');
+    }
+  });
+});
 
 // --- Endpoint Health Check ---
 app.get('/health', (req, res) => {
