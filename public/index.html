@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Asisten AI - Google Gemini</title>
+  <meta name="description" content="Aplikasi web Asisten AI futuristik berbahasa Indonesia bertenaga Google Gemini dengan streaming respon real-time, multi-persona, dan multimodal.">
+  <meta name="theme-color" content="#0a0e1a">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+
+  <!-- Google Fonts: Orbitron & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js CSS untuk Syntax Highlighting Code Block -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Overlay Latar Belakang Animasi Cyber / Neon Glow -->
+  <div class="cyber-glow-bg" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- SIDEBAR / DRAWER RIWAYAT PERCAKAPAN -->
+    <aside id="sidebar" class="sidebar" aria-label="Riwayat Percakapan">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-orb"></div>
+          <span class="brand-title">ASISTEN AI</span>
+        </div>
+        <button id="sidebar-close-btn" class="icon-btn mobile-only" aria-label="Tutup Menu">
+          ✕
+        </button>
+      </div>
+
+      <button id="btn-new-chat" class="btn-primary glow-btn full-width">
+        <span class="btn-icon">＋</span>
+        <span>Obrolan Baru</span>
+      </button>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="chat-search-input" placeholder="Cari percakapan..." aria-label="Cari riwayat percakapan">
+      </div>
+
+      <div class="chat-history-container">
+        <div class="history-label">RIWAYAT OBROLAN</div>
+        <ul id="chat-history-list" class="chat-history-list">
+          <!-- Item riwayat dimuat dinamis lewat JavaScript -->
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="health-status" id="health-status-badge">
+          <span class="status-dot"></span>
+          <span id="health-status-text">Memeriksa API...</span>
+        </div>
+        <button id="btn-open-settings" class="btn-ghost full-width" aria-label="Buka Pengaturan">
+          ⚙️ Pengaturan & Info
+        </button>
+      </div>
+    </aside>
+
+    <!-- Overlay Latar Belakang Sidebar untuk Tampilan Mobile -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+    <!-- KONTEN UTAMA -->
+    <main class="main-content">
+      <!-- HEADER ATAS (HUD KONTROL) -->
+      <header class="top-nav">
+        <div class="nav-left">
+          <button id="sidebar-toggle-btn" class="icon-btn" aria-label="Buka Menu Riwayat">
+            ☰
+          </button>
+          <div class="current-session-info">
+            <span id="current-chat-title" class="session-title">Obrolan Baru</span>
+            <span class="model-badge" id="current-model-badge">Gemini 2.5 Flash</span>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <!-- Pemilih Persona Cepat -->
+          <div class="hud-dropdown">
+            <label for="persona-select" class="sr-only">Pilih Persona</label>
+            <select id="persona-select" class="hud-select" title="Pilih Gaya Karakter AI">
+              <option value="umum">🤖 Umum</option>
+              <option value="programmer">💻 Programmer</option>
+              <option value="penulis">✍️ Penulis</option>
+              <option value="guru">🎓 Guru</option>
+              <option value="analis">📊 Analis Bisnis</option>
+              <option value="penerjemah">🌐 Penerjemah</option>
+            </select>
+          </div>
+
+          <!-- Pemilih Model -->
+          <div class="hud-dropdown">
+            <label for="model-select" class="sr-only">Pilih Model</label>
+            <select id="model-select" class="hud-select" title="Pilih Model AI">
+              <option value="cepat">⚡ Cepat (2.5 Flash)</option>
+              <option value="pintar">🧠 Pintar (3.1 Pro)</option>
+            </select>
+          </div>
+
+          <!-- Tombol Fitur Search Grounding -->
+          <button id="toggle-search-btn" class="icon-toggle-btn" title="Aktifkan Pencarian Google Web Real-time" aria-pressed="false">
+            🌐 <span class="btn-text-desktop">Search</span>
+          </button>
+
+          <!-- Menu Ekspor -->
+          <div class="dropdown-container">
+            <button id="export-menu-btn" class="icon-btn" title="Ekspor Percakapan" aria-haspopup="true">
+              📥
+            </button>
+            <div id="export-dropdown" class="dropdown-menu">
+              <button id="export-markdown-btn" class="dropdown-item">📄 Unduh Markdown (.md)</button>
+              <button id="export-pdf-btn" class="dropdown-item">🖨️ Cetak / Simpan PDF</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- AREA PESAN OBROLAN -->
+      <section id="chat-messages-container" class="chat-messages-container" aria-live="polite">
+        <!-- LAYAR AWAL HERO (Tampil saat percakapan masih kosong) -->
+        <div id="welcome-hero" class="welcome-hero">
+          <div class="holo-core">
+            <div class="core-ring outer"></div>
+            <div class="core-ring inner"></div>
+            <div class="core-sphere">
+              <span>AI</span>
+            </div>
+          </div>
+
+          <h1 class="hero-title">SISTEM ASISTEN AI</h1>
+          <p class="hero-subtitle">
+            Kecerdasan generasi berikutnya berbahasa Indonesia. Didukung Google Gemini, streaming instan, analisis dokumen multimodal, dan pencarian web terkini.
+          </p>
+
+          <div class="suggestion-chips-grid">
+            <button class="suggestion-chip" data-prompt="Buatkan 3 ide bisnis rintisan teknologi digital yang sangat potensial di Indonesia tahun ini.">
+              <span class="chip-icon">💡</span>
+              <span class="chip-text">Ide Bisnis Digital Menjanjikan</span>
+            </button>
+            <button class="suggestion-chip" data-prompt="Jelaskan konsep arsitektur microservices vs monolith secara mendalam dengan analogi restoran.">
+              <span class="chip-icon">💻</span>
+              <span class="chip-text">Arsitektur Microservices</span>
+            </button>
+            <button class="suggestion-chip" data-prompt="Buatkan draf email profesional untuk penawaran kerja sama kemitraan strategis B2B.">
+              <span class="chip-icon">✍️</span>
+              <span class="chip-text">Draf Email Kemitraan Bisnis</span>
+            </button>
+            <button class="suggestion-chip" data-prompt="Apa saja berita dan inovasi teknologi kecerdasan buatan paling baru minggu ini? Cari lewat Google Search.">
+              <span class="chip-icon">🔍</span>
+              <span class="chip-text">Berita Teknologi Terkini</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- DAFTAR PESAN PERCAKAPAN -->
+        <div id="message-list" class="message-list"></div>
+
+        <!-- INDIKATOR BERPIKIR (PULSING GLOW ORB) -->
+        <div id="thinking-indicator" class="thinking-indicator" style="display: none;">
+          <div class="ai-avatar pulse-avatar">
+            <div class="avatar-ring"></div>
+            <span>AI</span>
+          </div>
+          <div class="thinking-content">
+            <div class="thinking-text">Asisten AI sedang menyusun jawaban...</div>
+            <div class="thinking-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOCK INPUT PESAN DI BAWAH -->
+      <footer class="input-dock">
+        <!-- PREVIEW LAMPIRAN MULTIMODAL -->
+        <div id="attachments-preview-bar" class="attachments-preview-bar" style="display: none;"></div>
+
+        <!-- TOMBOL HENTIKAN STREAMING (ABORT) -->
+        <div id="streaming-control-bar" class="streaming-control-bar" style="display: none;">
+          <button id="btn-stop-stream" class="btn-stop-stream glow-red">
+            ⏹️ Hentikan Pembuatan Jawaban
+          </button>
+        </div>
+
+        <form id="chat-form" class="chat-form" onsubmit="return false;">
+          <!-- INPUT FILE TERSEMBUNYI -->
+          <input type="file" id="file-input" accept="image/*,application/pdf" multiple style="display: none;">
+          
+          <button type="button" id="btn-attach" class="dock-btn" title="Unggah Gambar atau PDF untuk dianalisis" aria-label="Unggah Berkas">
+            📎
+          </button>
+
+          <div class="textarea-wrapper">
+            <textarea
+              id="message-textarea"
+              rows="1"
+              placeholder="Ketik pertanyaan atau perintah Anda di sini... (Shift+Enter untuk baris baru)"
+              aria-label="Pesan Anda"
+            ></textarea>
+          </div>
+
+          <!-- TOMBOL SUARA (SPEECH-TO-TEXT) -->
+          <button type="button" id="btn-voice-input" class="dock-btn voice-btn" title="Bicara (Input Suara Bahasa Indonesia)" aria-label="Input Suara">
+            🎤
+          </button>
+
+          <!-- TOMBOL KIRIM -->
+          <button type="submit" id="btn-send" class="dock-btn send-btn glow-cyan" title="Kirim Pesan" aria-label="Kirim Pesan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+
+        <div class="input-footer-hint">
+          <span>Tekan <kbd>Ctrl</kbd> + <kbd>K</kbd> untuk Palet Perintah</span> • 
+          <span><kbd>Enter</kbd> kirim</span> • 
+          <span><kbd>Shift</kbd>+<kbd>Enter</kbd> baris baru</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- MODAL: PALET PERINTAH (COMMAND PALETTE) -->
+  <dialog id="command-palette-dialog" class="cyber-dialog">
+    <div class="dialog-content">
+      <div class="palette-input-box">
+        <span class="palette-icon">⚡</span>
+        <input type="text" id="palette-search-input" placeholder="Ketik perintah (contoh: Obrolan Baru, Persona, Ekspor)..." aria-label="Cari Perintah">
+        <kbd class="kbd-esc">ESC</kbd>
+      </div>
+      <ul id="palette-results-list" class="palette-results-list">
+        <!-- Item perintah dimuat dinamis -->
+      </ul>
+    </div>
+  </dialog>
+
+  <!-- MODAL: PENGATURAN & KONTROL SISTEM -->
+  <dialog id="settings-dialog" class="cyber-dialog">
+    <div class="dialog-content settings-box">
+      <div class="dialog-header">
+        <h2 class="dialog-title">⚙️ Pengaturan Asisten AI</h2>
+        <button id="settings-close-btn" class="icon-btn" aria-label="Tutup Pengaturan">✕</button>
+      </div>
+
+      <div class="settings-body">
+        <div class="setting-item">
+          <label for="temperature-slider">
+            <span class="setting-name">Kreativitas Respon (Temperature)</span>
+            <span id="temperature-val-label" class="setting-value">0.7</span>
+          </label>
+          <input type="range" id="temperature-slider" min="0" max="1" step="0.1" value="0.7">
+          <span class="setting-hint">Nilai rendah (0.1 - 0.4) untuk jawaban faktual & kode. Nilai tinggi (0.7 - 1.0) untuk tulisan kreatif.</span>
+        </div>
+
+        <div class="setting-item">
+          <label class="toggle-label">
+            <span class="setting-name">Pembacaan Suara Otomatis (TTS)</span>
+            <input type="checkbox" id="tts-auto-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="setting-hint">Otomatis membacakan jawaban baru menggunakan suara Bahasa Indonesia.</span>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-name">Status Server & API</label>
+          <div class="info-card">
+            <p><strong>Endpoint:</strong> <code>/api/chat/stream</code> (Server-Sent Events)</p>
+            <p><strong>Model:</strong> Google Gemini 2.5 Flash & 3.1 Pro Preview</p>
+            <p><strong>Keamanan:</strong> Kunci API tersimpan di sisi server (aman).</p>
+          </div>
+        </div>
+
+        <div class="setting-actions">
+          <button id="btn-clear-all-history" class="btn-danger full-width">
+            🗑️ Hapus Seluruh Riwayat Percakapan
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Script Pihak Ketiga: Marked.js (Markdown) & Highlight.js (Syntax Highlighting) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Logika Aplikasi Utama -->
+  <script src="/app.js"></script>
+</body>
+</html>

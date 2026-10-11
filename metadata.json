@@ -1,0 +1,6 @@
+{
+  "name": "Asisten AI",
+  "description": "Aplikasi Asisten AI futuristik berbahasa Indonesia bertenaga Google Gemini dengan streaming SSE, multi-persona, input suara & analisis dokumen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

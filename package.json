@@ -1,0 +1,27 @@
+{
+  "name": "asisten-ai-gemini",
+  "version": "1.0.0",
+  "description": "Asisten AI Futuristik Berbahasa Indonesia bertenaga Google Gemini API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "gemini",
+    "ai-assistant",
+    "indonesia",
+    "express",
+    "sse-streaming",
+    "multimodal"
+  ],
+  "author": "AI Studio Engineer",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0"
+  }
+}
